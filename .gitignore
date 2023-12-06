@@ -1,0 +1,4 @@
+#Ignoring folders and files
+__pycache__/
+venv/
+instalacao_spark/
