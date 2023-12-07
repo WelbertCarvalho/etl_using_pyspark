@@ -2,7 +2,7 @@ import findspark
 findspark.init()
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import col, first, lit
+from pyspark.sql.functions import col, first, lit, from_unixtime, to_timestamp
 
 from manage_spark import Manag_spark
 from extraction import Data_extractor
@@ -22,11 +22,12 @@ class Data_loader():
         return spark_dataframe
 
 
+
 if __name__ == '__main__':
     # Extraction data from a public API
     extract_obj = Data_extractor()
     data = extract_obj.get_json_data(
-        url = 'https://economia.awesomeapi.com.br/json/daily/BTC-BRL',
+        url = 'https://economia.awesomeapi.com.br/json/daily/USD-BRL',
         num_days = 10
     )
 
@@ -35,7 +36,7 @@ if __name__ == '__main__':
     spark_session = manager_spark_obj.start_spark('Currency data collector')
 
 
-    # Initializing a data loader instance
+    # Initializing a data loader instance 
     data_loader_obj = Data_loader()
     raw_dataframe = data_loader_obj.spark_df_using_list(
         data_list = data, 
@@ -44,11 +45,27 @@ if __name__ == '__main__':
     raw_dataframe.show()
 
     bronze_dataframe = (
-        data_loader_obj.populate_rows_using_first_value(
-            spark_dataframe = raw_dataframe, 
-            list_of_column_names = ['code', 'codein', 'create_date', 'name'])
-        )    
+        data_loader_obj
+            .populate_rows_using_first_value(
+                spark_dataframe = raw_dataframe, 
+                list_of_column_names = ['code', 'codein', 'name']
+            )
+    )
+    
+    bronze_dataframe = (
+        bronze_dataframe
+            .drop('create_date')
+            .withColumn('ask', col('ask').cast('double'))
+            .withColumn('bid', col('bid').cast('double'))
+            .withColumn('high', col('high').cast('double'))
+            .withColumn('low', col('low').cast('double'))
+            .withColumn('pctChange', col('pctChange').cast('double'))
+            .withColumn('varBid', col('varBid').cast('double'))
+            .withColumn('datetime', from_unixtime('timestamp'))
+            .withColumn('datetime', to_timestamp('datetime', 'yyyy-MM-dd HH:mm:ss'))
+    )
     
     bronze_dataframe.show()
+    bronze_dataframe.printSchema()
 
     manager_spark_obj.stop_spark(spark_session)
