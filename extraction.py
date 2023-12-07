@@ -17,11 +17,11 @@ if __name__ == '__main__':
     extract_obj = Data_extractor()
     data = extract_obj.get_json_data(
         url = 'https://economia.awesomeapi.com.br/json/daily/BTC-BRL',
-        num_days = 10
+        num_days = 1000
     )
 
     for row in data:
         print(row)
 
-    
+
     
