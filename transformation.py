@@ -2,7 +2,8 @@ import findspark
 findspark.init()
 
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import col, first, lit, from_unixtime, to_timestamp
+from pyspark.sql.window import Window
+from pyspark.sql.functions import col, first, lit, from_unixtime, to_timestamp, row_number
 
 from manage_spark import Manag_spark
 from extraction import Data_extractor
@@ -22,13 +23,31 @@ class Data_loader():
         return spark_dataframe
 
 
+    def deduplicate_data(self, spark_dataframe: DataFrame, column_name_ref: str) -> DataFrame:
+        window_spec = (
+            Window
+                .partitionBy('code', col(column_name_ref))
+                .orderBy(col(column_name_ref).desc())
+        )
+
+        spark_dataframe = (
+            spark_dataframe
+                .withColumn('rank', row_number().over(window_spec))
+                .filter(col('rank') == 1)
+                .drop('rank')
+                .orderBy(col(column_name_ref).desc())
+        )
+
+        return spark_dataframe
+
+
 
 if __name__ == '__main__':
     # Extraction data from a public API
     extract_obj = Data_extractor()
     data = extract_obj.get_json_data(
-        url = 'https://economia.awesomeapi.com.br/json/daily/USD-BRL',
-        num_days = 10
+        url = 'https://economia.awesomeapi.com.br/json/daily/EUR-BRL',
+        num_days = 20
     )
 
     # Initializing a spark management instance
@@ -63,9 +82,19 @@ if __name__ == '__main__':
             .withColumn('varBid', col('varBid').cast('double'))
             .withColumn('datetime', from_unixtime('timestamp'))
             .withColumn('datetime', to_timestamp('datetime', 'yyyy-MM-dd HH:mm:ss'))
+            .withColumn('date', col('datetime').cast('date'))
     )
     
+    bronze_dataframe = (
+        data_loader_obj
+            .deduplicate_data(
+                spark_dataframe = bronze_dataframe,
+                column_name_ref = 'date'
+            )
+    ).drop('date')
+
     bronze_dataframe.show()
-    bronze_dataframe.printSchema()
+
+
 
     manager_spark_obj.stop_spark(spark_session)
