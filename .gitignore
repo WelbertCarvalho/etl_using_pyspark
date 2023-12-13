@@ -2,4 +2,4 @@
 __pycache__/
 venv/
 instalacao_spark/
-deltalake/
+datalake/
