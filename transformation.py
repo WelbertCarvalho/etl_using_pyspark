@@ -3,14 +3,11 @@ findspark.init()
 
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, first, lit, from_unixtime, to_timestamp, row_number
+from pyspark.sql.functions import col, first, lit, row_number
 
-from manage_spark import Manag_spark
-from extraction import Data_extractor
-
-class Data_loader():
+class Data_transformer():
     def __init__(self) -> None:
-        print('---------- Inicializing the loader instance ----------')
+        print('---------- Initializing the transformer instance ----------')
 
     def spark_df_using_list(self, data_list: list, spark_session: SparkSession) -> DataFrame:
         spark_dataframe = spark_session.createDataFrame(data_list)
@@ -39,11 +36,17 @@ class Data_loader():
         )
 
         return spark_dataframe
+    
 
 
 
 if __name__ == '__main__':
-    # Extraction data from a public API
+    from pyspark.sql.functions import to_timestamp, from_unixtime
+    
+    from manage_spark import Manag_spark
+    from extraction import Data_extractor
+
+    # Extracting data from a public API
     extract_obj = Data_extractor()
     data = extract_obj.get_json_data(
         url = 'https://economia.awesomeapi.com.br/json/daily/EUR-BRL',
@@ -55,16 +58,14 @@ if __name__ == '__main__':
     spark_session = manager_spark_obj.start_spark('Currency data collector')
 
 
-    # Initializing a data loader instance 
-    data_loader_obj = Data_loader()
-    raw_dataframe = data_loader_obj.spark_df_using_list(
+    # Initializing a data transformer instance 
+    data_transformer_obj = Data_transformer()
+    raw_dataframe = data_transformer_obj.spark_df_using_list(
         data_list = data, 
         spark_session = spark_session)
-    
-    raw_dataframe.show()
 
     bronze_dataframe = (
-        data_loader_obj
+        data_transformer_obj
             .populate_rows_using_first_value(
                 spark_dataframe = raw_dataframe, 
                 list_of_column_names = ['code', 'codein', 'name']
@@ -86,7 +87,7 @@ if __name__ == '__main__':
     )
     
     bronze_dataframe = (
-        data_loader_obj
+        data_transformer_obj
             .deduplicate_data(
                 spark_dataframe = bronze_dataframe,
                 column_name_ref = 'date'
