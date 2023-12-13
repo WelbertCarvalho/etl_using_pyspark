@@ -2,17 +2,16 @@ import findspark
 findspark.init()
 
 from pyspark.sql import DataFrame
-from delta.tables import *
 
 class Data_loader():
     def __init__(self) -> None:
         print('---------- Initializing the loader instance  ----------')
 
-    def path_to_delta_table(self, path_to_save: str, table_name: str) -> str:
+    def path_to_files(self, path_to_save: str, table_name: str) -> str:
         complete_path = f'{path_to_save}/{table_name}' 
         return complete_path
     
-    def exporting_data(self, dataframe_to_save, path_and_name_of_table: str) -> None:
+    def exporting_data(self, dataframe_to_save: DataFrame, path_and_name_of_table: str) -> None:
         (
             dataframe_to_save
                 .write
@@ -57,9 +56,9 @@ if __name__ == '__main__':
     # Initializing a data loader instance
     data_loader_obj = Data_loader()
 
-    # Saving data in a raw layer of the deltalake
-    path_to_raw_layer = data_loader_obj.path_to_delta_table(
-        path_to_save = '/home/welbert/projetos/spark/deltalake/raw',
+    # Saving data in a raw layer of the datalake
+    path_to_raw_layer = data_loader_obj.path_to_files(
+        path_to_save = '/home/welbert/projetos/spark/datalake/raw',
         table_name = 'currency_daily_quotation'
     )
 
@@ -71,43 +70,47 @@ if __name__ == '__main__':
     )
 
 
-    # # Transforming the data to save in bronze layer
-
-    # bronze_dataframe = (
-    #     data_transformer_obj
-    #         .populate_rows_using_first_value(
-    #             spark_dataframe = raw_dataframe, 
-    #             list_of_column_names = ['code', 'codein', 'name']
-    #         )
-    # )
+    # Transforming the data to save in bronze layer
+    bronze_dataframe = (
+        data_transformer_obj
+            .populate_rows_using_first_value(
+                spark_dataframe = raw_dataframe, 
+                list_of_column_names = ['code', 'codein', 'name']
+            )
+    )
     
-    # bronze_dataframe = (
-    #     bronze_dataframe
-    #         .drop('create_date')
-    #         .withColumn('ask', col('ask').cast('double'))
-    #         .withColumn('bid', col('bid').cast('double'))
-    #         .withColumn('high', col('high').cast('double'))
-    #         .withColumn('low', col('low').cast('double'))
-    #         .withColumn('pctChange', col('pctChange').cast('double'))
-    #         .withColumn('varBid', col('varBid').cast('double'))
-    #         .withColumn('datetime', from_unixtime('timestamp'))
-    #         .withColumn('datetime', to_timestamp('datetime', 'yyyy-MM-dd HH:mm:ss'))
-    #         .withColumn('date', col('datetime').cast('date'))
-    # )
+    bronze_dataframe = (
+        bronze_dataframe
+            .drop('create_date')
+            .withColumn('ask', col('ask').cast('double'))
+            .withColumn('bid', col('bid').cast('double'))
+            .withColumn('high', col('high').cast('double'))
+            .withColumn('low', col('low').cast('double'))
+            .withColumn('pctChange', col('pctChange').cast('double'))
+            .withColumn('varBid', col('varBid').cast('double'))
+            .withColumn('datetime', from_unixtime('timestamp'))
+            .withColumn('datetime', to_timestamp('datetime', 'yyyy-MM-dd HH:mm:ss'))
+            .withColumn('date', col('datetime').cast('date'))
+    )
     
-    # bronze_dataframe = (
-    #     data_transformer_obj
-    #         .deduplicate_data(
-    #             spark_dataframe = bronze_dataframe,
-    #             column_name_ref = 'date'
-    #         )
-    # ).drop('date')
+    bronze_dataframe = (
+        data_transformer_obj
+            .deduplicate_data(
+                spark_dataframe = bronze_dataframe,
+                column_name_ref = 'date'
+            )
+    ).drop('date')
 
-    # bronze_dataframe.show()
+    path_to_bronze_layer = data_loader_obj.path_to_files(
+        path_to_save = '/home/welbert/projetos/spark/datalake/bronze',
+        table_name = 'currency_daily_quotation'
+    )
 
+    data_loader_obj.exporting_data(
+        dataframe_to_save = bronze_dataframe,
+        path_and_name_of_table = path_to_bronze_layer
+    )
 
-
-
-
+    bronze_dataframe.show()
 
     manager_spark_obj.stop_spark(spark_session)
