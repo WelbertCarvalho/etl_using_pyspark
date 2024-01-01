@@ -8,6 +8,10 @@ class Manag_spark():
         print('---------- Initializing the spark management instance ----------')
 
     def start_spark(self, app_name: str) -> SparkSession:
+        """
+        This method starts a new Spark Session, receiving an app name as a parameter.
+        """
+
         spark = (
             SparkSession
                 .builder
@@ -19,6 +23,9 @@ class Manag_spark():
         return spark
 
     def stop_spark(self, spark_session: SparkSession) -> None:
+        """
+        This method stops an existing Spark Session, taking as a parameter the variable that contains the Spark Session.
+        """
         spark_session.stop()
         print('------- The spark session was ended -------')
 

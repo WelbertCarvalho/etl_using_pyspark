@@ -10,10 +10,16 @@ class Data_transformer():
         print('---------- Initializing the transformer instance ----------')
 
     def spark_df_using_list(self, data_list: list, spark_session: SparkSession) -> DataFrame:
+        """
+        This method creates a Spark Dataframe, receiving a list of records and a Spark Session.
+        """
         spark_dataframe = spark_session.createDataFrame(data_list)
         return spark_dataframe
     
     def populate_rows_using_first_value(self, spark_dataframe: DataFrame, list_of_column_names: list) -> DataFrame:
+        """
+        This method populates the rows of a Spark DataFrame using the value found in the first row of a specific column, receiving a Spark DataFrame and a list of column names.
+        """
         for column in list_of_column_names:
             first_row_value = spark_dataframe.select(first(column)).first()[0]
             spark_dataframe = spark_dataframe.withColumn(column, lit(first_row_value))
@@ -21,6 +27,9 @@ class Data_transformer():
 
 
     def deduplicate_data(self, spark_dataframe: DataFrame, column_name_ref: str) -> DataFrame:
+        """
+        This method deduplicate data using a specific column, receiving a Spark DataFrame and the column name as a string.
+        """
         window_spec = (
             Window
                 .partitionBy('code', col(column_name_ref))

@@ -7,6 +7,9 @@ class Data_extractor:
         print('---------- Initializing the extraction instance ----------')
 
     def get_json_data(self, url: str, num_days: int) -> list:
+        """
+        This method gets data from a specific API URL and transforms it into a list.
+        """
         complete_url = f'{url}/{num_days}' 
         r = requests.get(complete_url)
         json_data = json.loads(r.text)
@@ -22,6 +25,4 @@ if __name__ == '__main__':
 
     for row in data:
         print(row)
-
-
-    
+        

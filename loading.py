@@ -8,10 +8,16 @@ class Data_loader():
         print('---------- Initializing the loader instance  ----------')
 
     def path_to_files(self, path_to_save: str, table_name: str) -> str:
+        """
+        This method creates a string that provides a complete path to save files.
+        """
         complete_path = f'{path_to_save}/{table_name}' 
         return complete_path
     
     def exporting_data(self, dataframe_to_save: DataFrame, path_and_name_of_table: str) -> None:
+        """
+        This method exports data, taking a Spark Dataframe and a path along with the name of a table as a string.
+        """
         (
             dataframe_to_save
                 .write
