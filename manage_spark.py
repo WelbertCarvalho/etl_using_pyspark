@@ -7,18 +7,32 @@ class Manag_spark():
     def __init__(self):
         print('---------- Initializing the spark management instance ----------')
 
-    def start_spark(self, app_name: str) -> SparkSession:
+    def start_spark(self, app_name: str, delta: bool = False) -> SparkSession:
         """
-        This method starts a new Spark Session, receiving an app name as a parameter.
+        This method starts a new Spark Session, receiving an app name and an option to use a delta table as a parameter.
+        The default value to use delta tables is false.
         """
 
-        spark = (
-            SparkSession
-                .builder
-                .master('local[*]')
-                .appName(app_name)
-                .getOrCreate()
-        )
+        if delta:
+            spark = (
+                SparkSession
+                    .builder
+                    .master('local[*]')
+                    .appName(app_name)
+                    .getOrCreate()
+            )
+        else:
+            spark = (
+                SparkSession
+                    .builder
+                    .master('local[*]')
+                    .config('spark.jars.packages', 'io.delta:delta-core_2.12:1.0.0')
+                    .config('spark.sql.extensions', 'io.delta.sql.DeltaSparkSessionExtension')
+                    .config('spark.sql.catalog.spark_catalog', 'org.apache.spark.sql.delta.catalog.DeltaCatalog')
+                    .getOrCreate()
+            )
+            
+            import delta
 
         return spark
 
