@@ -14,7 +14,7 @@ class Data_loader():
         complete_path = f'{path_to_save}/{table_name}' 
         return complete_path
     
-    def exporting_data(self, dataframe_to_save: DataFrame, path_and_name_of_table: str) -> None:
+    def export_data(self, dataframe_to_save: DataFrame, path_and_name_of_table: str) -> None:
         """
         This method exports data, taking a Spark Dataframe and a path along with the name of a table as a string.
         """
@@ -30,6 +30,19 @@ class Data_loader():
         print(f'The table was saved on to the following path: {path_and_name_of_table}')
         return None
     
+    def create_delta_table(self, dataframe_to_save: DataFrame, path_and_name_of_table: str) -> None:
+        """
+        This method creates a delta table using a dataframe as a data source and a string path as a target.
+        """
+        (
+            dataframe_to_save
+                .write
+                .format('delta')
+                .mode('overwrite')
+                .save(path_and_name_of_table)
+        )
+
+        return None
     
 
 if __name__ == '__main__':
@@ -49,7 +62,10 @@ if __name__ == '__main__':
 
     # Initializing a spark management instance
     manager_spark_obj = Manag_spark()
-    spark_session = manager_spark_obj.start_spark('Currency data collector')
+    spark_session = manager_spark_obj.start_spark(
+        app_name = 'Currency data collector',
+        delta = True     
+    )
 
 
     # Initializing a data transformer instance 
@@ -70,11 +86,17 @@ if __name__ == '__main__':
 
     print(f'Path to raw data: {path_to_raw_layer}')
 
-    data_loader_obj.exporting_data(
+    # Testing delta table creation in a raw layer
+    data_loader_obj.create_delta_table(
         dataframe_to_save = raw_dataframe,
         path_and_name_of_table = path_to_raw_layer
     )
 
+    # Testing export data to a raw layer
+    # data_loader_obj.export_data(
+    #     dataframe_to_save = raw_dataframe,
+    #     path_and_name_of_table = path_to_raw_layer
+    # )
 
     # Transforming the data to save in bronze layer
     bronze_dataframe = (
@@ -84,7 +106,8 @@ if __name__ == '__main__':
                 list_of_column_names = ['code', 'codein', 'name']
             )
     )
-    
+
+
     bronze_dataframe = (
         bronze_dataframe
             .drop('create_date')
@@ -112,7 +135,14 @@ if __name__ == '__main__':
         table_name = 'currency_daily_quotation'
     )
 
-    data_loader_obj.exporting_data(
+    # Testing export data to a bronze layer
+    # data_loader_obj.export_data(
+    #     dataframe_to_save = bronze_dataframe,
+    #     path_and_name_of_table = path_to_bronze_layer
+    # )
+
+    # Testing delta table creation in a bronze layer
+    data_loader_obj.create_delta_table(
         dataframe_to_save = bronze_dataframe,
         path_and_name_of_table = path_to_bronze_layer
     )
