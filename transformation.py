@@ -59,7 +59,7 @@ if __name__ == '__main__':
     extract_obj = Data_extractor()
     data = extract_obj.get_json_data(
         url = 'https://economia.awesomeapi.com.br/json/daily/EUR-BRL',
-        num_days = 1000
+        num_days = 20
     )
 
     # Initializing a spark management instance
