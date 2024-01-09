@@ -18,21 +18,20 @@ class Manag_spark():
                 SparkSession
                     .builder
                     .master('local[*]')
-                    .appName(app_name)
-                    .getOrCreate()
-            )
-        else:
-            spark = (
-                SparkSession
-                    .builder
-                    .master('local[*]')
                     .config('spark.jars.packages', 'io.delta:delta-core_2.12:1.0.0')
                     .config('spark.sql.extensions', 'io.delta.sql.DeltaSparkSessionExtension')
                     .config('spark.sql.catalog.spark_catalog', 'org.apache.spark.sql.delta.catalog.DeltaCatalog')
                     .getOrCreate()
             )
             
-            import delta
+        else:
+            spark = (
+                SparkSession
+                    .builder
+                    .master('local[*]')
+                    .appName(app_name)
+                    .getOrCreate()
+            )
 
         return spark
 
@@ -46,7 +45,7 @@ class Manag_spark():
 
 if __name__ == '__main__':
     obj_gerenc_spark = Manag_spark()
-    spark_session = obj_gerenc_spark.start_spark("Data engineering")
+    spark_session = obj_gerenc_spark.start_spark(app_name = "Data engineering", delta = True)
     print(spark_session)
 
     obj_gerenc_spark.stop_spark(spark_session)
