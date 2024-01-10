@@ -47,8 +47,6 @@ class Data_transformer():
         return spark_dataframe
     
 
-
-
 if __name__ == '__main__':
     from pyspark.sql.functions import to_timestamp, from_unixtime
     
@@ -64,8 +62,10 @@ if __name__ == '__main__':
 
     # Initializing a spark management instance
     manager_spark_obj = Manag_spark()
-    spark_session = manager_spark_obj.start_spark('Currency data collector')
-
+    spark_session = manager_spark_obj.start_spark(
+        app_name = 'Currency data collector',
+        delta = True
+    )
 
     # Initializing a data transformer instance 
     data_transformer_obj = Data_transformer()
@@ -104,7 +104,5 @@ if __name__ == '__main__':
     ).drop('date')
 
     bronze_dataframe.show()
-
-
 
     manager_spark_obj.stop_spark(spark_session)
