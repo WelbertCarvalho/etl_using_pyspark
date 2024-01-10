@@ -92,12 +92,6 @@ if __name__ == '__main__':
         path_and_name_of_table = path_to_raw_layer
     )
 
-    # Testing export data to a raw layer
-    # data_loader_obj.export_data(
-    #     dataframe_to_save = raw_dataframe,
-    #     path_and_name_of_table = path_to_raw_layer
-    # )
-
     # Transforming the data to save in bronze layer
     bronze_dataframe = (
         data_transformer_obj
@@ -106,7 +100,6 @@ if __name__ == '__main__':
                 list_of_column_names = ['code', 'codein', 'name']
             )
     )
-
 
     bronze_dataframe = (
         bronze_dataframe
@@ -134,12 +127,6 @@ if __name__ == '__main__':
         path_to_save = '/home/welbert/projetos/spark/datalake/bronze',
         table_name = 'currency_daily_quotation'
     )
-
-    # Testing export data to a bronze layer
-    # data_loader_obj.export_data(
-    #     dataframe_to_save = bronze_dataframe,
-    #     path_and_name_of_table = path_to_bronze_layer
-    # )
 
     # Testing delta table creation in a bronze layer
     data_loader_obj.create_delta_table(
