@@ -1,3 +1,4 @@
+from datetime import datetime
 import findspark
 findspark.init()
 
@@ -5,13 +6,15 @@ from pyspark.sql import SparkSession
 
 class Manag_spark():
     def __init__(self):
+        started_in = datetime.now().strftime('%y-%m-%d %H:%M:%S')
+        self.start_in = f'This instance was started in: {started_in}'
         print('---------- Initializing the spark management instance ----------')
 
     def start_spark(self, app_name: str, delta: bool = False) -> SparkSession:
-        """
+        '''
         This method starts a new Spark Session, receiving an app name and an option to use a delta table as a parameter.
         The default value to use delta tables is false.
-        """
+        '''
 
         if delta:
             spark = (
@@ -36,16 +39,17 @@ class Manag_spark():
         return spark
 
     def stop_spark(self, spark_session: SparkSession) -> None:
-        """
+        '''
         This method stops an existing Spark Session, taking as a parameter the variable that contains the Spark Session.
-        """
+        '''
         spark_session.stop()
         print('------- The spark session was ended -------')
 
 
 if __name__ == '__main__':
     obj_gerenc_spark = Manag_spark()
-    spark_session = obj_gerenc_spark.start_spark(app_name = "Data engineering", delta = True)
+    spark_session = obj_gerenc_spark.start_spark(app_name = 'Data engineering', delta = True)
     print(spark_session)
+    print(obj_gerenc_spark.start_in)
 
     obj_gerenc_spark.stop_spark(spark_session)
