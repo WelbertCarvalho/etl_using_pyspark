@@ -3,8 +3,8 @@ import json
 
 
 class Data_extractor:
-    def __init__(self):
-        print('---------- Initializing the extraction instance ----------')
+    def __init__(self, project_name):
+        self.project_name = project_name
 
     def get_json_data(self, url: str, num_days: int) -> list:
         """
@@ -17,7 +17,10 @@ class Data_extractor:
     
 
 if __name__ == '__main__':
-    extract_obj = Data_extractor()
+    extract_obj = Data_extractor(project_name = 'Currency daily quotation')
+
+    print(extract_obj.project_name)
+
     data = extract_obj.get_json_data(
         url = 'https://economia.awesomeapi.com.br/json/daily/BTC-BRL',
         num_days = 100
