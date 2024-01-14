@@ -5,18 +5,17 @@ findspark.init()
 from pyspark.sql import SparkSession
 
 class Manag_spark():
-    def __init__(self):
-        started_in = datetime.now().strftime('%y-%m-%d %H:%M:%S')
-        self.start_in = f'This instance was started in: {started_in}'
-        print('---------- Initializing the spark management instance ----------')
+    def __init__(self, app_name: str, delta: bool = False):
+        self.started_in = datetime.now().strftime('%y-%m-%d %H:%M:%S')
+        self.app_name = app_name
+        self.delta = delta
 
-    def start_spark(self, app_name: str, delta: bool = False) -> SparkSession:
+    def start_spark(self) -> SparkSession:
         '''
-        This method starts a new Spark Session, receiving an app name and an option to use a delta table as a parameter.
-        The default value to use delta tables is false.
+        This method starts a new Spark Session. The default value to use delta tables is false.
         '''
 
-        if delta:
+        if self.delta:
             spark = (
                 SparkSession
                     .builder
@@ -32,7 +31,7 @@ class Manag_spark():
                 SparkSession
                     .builder
                     .master('local[*]')
-                    .appName(app_name)
+                    .appName(self.app_name)
                     .getOrCreate()
             )
 
@@ -47,9 +46,9 @@ class Manag_spark():
 
 
 if __name__ == '__main__':
-    obj_gerenc_spark = Manag_spark()
-    spark_session = obj_gerenc_spark.start_spark(app_name = 'Data engineering', delta = True)
+    obj_gerenc_spark = Manag_spark(app_name = 'Data engineering', delta = True)
+    spark_session = obj_gerenc_spark.start_spark()
     print(spark_session)
-    print(obj_gerenc_spark.start_in)
+    print(obj_gerenc_spark.started_in)
 
     obj_gerenc_spark.stop_spark(spark_session)
