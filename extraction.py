@@ -2,7 +2,7 @@ import requests
 import json
 
 
-class Data_extractor:
+class DataExtractor:
     def __init__(self, project_name):
         self.project_name = project_name
 
@@ -17,7 +17,7 @@ class Data_extractor:
     
 
 if __name__ == '__main__':
-    extract_obj = Data_extractor(project_name = 'Currency daily quotation')
+    extract_obj = DataExtractor(project_name = 'Currency daily quotation')
 
     print(extract_obj.project_name)
 

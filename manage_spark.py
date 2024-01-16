@@ -4,7 +4,7 @@ findspark.init()
 
 from pyspark.sql import SparkSession
 
-class Manag_spark():
+class ManagSpark():
     def __init__(self, app_name: str, delta: bool = False):
         self.started_in = datetime.now().strftime('%y-%m-%d %H:%M:%S')
         self.app_name = app_name
@@ -46,7 +46,7 @@ class Manag_spark():
 
 
 if __name__ == '__main__':
-    obj_gerenc_spark = Manag_spark(app_name = 'Data engineering', delta = True)
+    obj_gerenc_spark = ManagSpark(app_name = 'Data engineering', delta = True)
     spark_session = obj_gerenc_spark.start_spark()
     print(spark_session)
     print(obj_gerenc_spark.started_in)

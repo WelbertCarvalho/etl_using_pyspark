@@ -5,7 +5,7 @@ from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.window import Window
 from pyspark.sql.functions import col, first, lit, row_number
 
-class Data_transformer():
+class DataTransformer():
     def __init__(self, short_description: str, layer: str = 'silver') -> None:
         self.short_description = short_description
         self.layer = layer
@@ -51,11 +51,11 @@ class Data_transformer():
 if __name__ == '__main__':
     from pyspark.sql.functions import to_timestamp, from_unixtime
     
-    from manage_spark import Manag_spark
-    from extraction import Data_extractor
+    from manage_spark import ManagSpark
+    from extraction import DataExtractor
 
     # Extracting data from a public API
-    extract_obj = Data_extractor(
+    extract_obj = DataExtractor(
         project_name = 'Currency daily quotation'
     )
 
@@ -65,14 +65,14 @@ if __name__ == '__main__':
     )
 
     # Initializing a spark management instance
-    manager_spark_obj = Manag_spark(
+    manager_spark_obj = ManagSpark(
         app_name = 'Data Engineering',
         delta = True
     )
     spark_session = manager_spark_obj.start_spark()
 
     # Initializing a data transformer instance 
-    data_transformer_obj = Data_transformer(
+    data_transformer_obj = DataTransformer(
         short_description = 'Applying initial transformations in the raw and bronze layers',
         layer = 'bronze'
     )

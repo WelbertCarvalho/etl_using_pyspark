@@ -36,12 +36,12 @@ if __name__ == '__main__':
 
     from pyspark.sql.functions import col, to_timestamp, from_unixtime
 
-    from manage_spark import Manag_spark
-    from extraction import Data_extractor
-    from transformation import Data_transformer
+    from manage_spark import ManagSpark
+    from extraction import DataExtractor
+    from transformation import DataTransformer
 
     # Extracting data from a public API
-    extract_obj = Data_extractor(
+    extract_obj = DataExtractor(
         project_name = 'Currency daily quotation'
     )
     data = extract_obj.get_json_data(
@@ -50,7 +50,7 @@ if __name__ == '__main__':
     )
 
     # Initializing a spark management instance
-    manager_spark_obj = Manag_spark(
+    manager_spark_obj = ManagSpark(
         app_name = 'Currency data collector',
         delta = True
     )
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
 
     # Initializing a data transformer instance 
-    data_transformer_obj = Data_transformer(
+    data_transformer_obj = DataTransformer(
         short_description = 'Applying initial transformations in the raw and bronze layers'
     )
     raw_dataframe = data_transformer_obj.spark_df_using_list(
@@ -114,7 +114,7 @@ if __name__ == '__main__':
 
     # Initializing a data loader instance to bronze layer
     data_loader_obj_bronze = DataLoader(
-        path_to_save = '/home/welbert/projetos/spark/datalake/raw',
+        path_to_save = '/home/welbert/projetos/spark/datalake/bronze',
         table_name = 'currency_daily_quotation'
     )
 
