@@ -3,37 +3,24 @@ findspark.init()
 
 from pyspark.sql import DataFrame
 
-class Data_loader():
-    def __init__(self) -> None:
-        print('---------- Initializing the loader instance  ----------')
+class DataLoader():
+    def __init__(self, path_to_save: str, table_name: str) -> None:
+        self._path_to_save = path_to_save
+        self._table_name = table_name
 
-    def path_to_files(self, path_to_save: str, table_name: str) -> str:
-        """
+    def _path_to_files(self) -> str:
+        '''
         This method creates a string that provides a complete path to save files.
-        """
-        complete_path = f'{path_to_save}/{table_name}' 
+        '''
+        complete_path = f'{self._path_to_save}/{self._table_name}' 
         return complete_path
     
-    def export_data(self, dataframe_to_save: DataFrame, path_and_name_of_table: str) -> None:
-        """
-        This method exports data, taking a Spark Dataframe and a path along with the name of a table as a string.
-        """
-        (
-            dataframe_to_save
-                .write
-                .option('compression', 'snappy')
-                .format('parquet')
-                .mode('overwrite')
-                .save(path_and_name_of_table)
-        )
+    def create_delta_table(self, dataframe_to_save: DataFrame) -> None:
+        '''
+        This method creates a delta table using a dataframe as a data source.
+        '''
+        path_and_name_of_table = self._path_to_files()
 
-        print(f'The table was saved on to the following path: {path_and_name_of_table}')
-        return None
-    
-    def create_delta_table(self, dataframe_to_save: DataFrame, path_and_name_of_table: str) -> None:
-        """
-        This method creates a delta table using a dataframe as a data source and a string path as a target.
-        """
         (
             dataframe_to_save
                 .write
@@ -54,42 +41,43 @@ if __name__ == '__main__':
     from transformation import Data_transformer
 
     # Extracting data from a public API
-    extract_obj = Data_extractor()
+    extract_obj = Data_extractor(
+        project_name = 'Currency daily quotation'
+    )
     data = extract_obj.get_json_data(
         url = 'https://economia.awesomeapi.com.br/json/daily/EUR-BRL',
         num_days = 20
     )
 
     # Initializing a spark management instance
-    manager_spark_obj = Manag_spark()
-    spark_session = manager_spark_obj.start_spark(
+    manager_spark_obj = Manag_spark(
         app_name = 'Currency data collector',
-        delta = True     
+        delta = True
     )
+    spark_session = manager_spark_obj.start_spark()
 
 
     # Initializing a data transformer instance 
-    data_transformer_obj = Data_transformer()
+    data_transformer_obj = Data_transformer(
+        short_description = 'Applying initial transformations in the raw and bronze layers'
+    )
     raw_dataframe = data_transformer_obj.spark_df_using_list(
         data_list = data, 
         spark_session = spark_session)
     
     
-    # Initializing a data loader instance
-    data_loader_obj = Data_loader()
-
-    # Saving data in a raw layer of the datalake
-    path_to_raw_layer = data_loader_obj.path_to_files(
+    # Initializing a data loader instance to raw layer
+    data_loader_obj_raw = DataLoader(
         path_to_save = '/home/welbert/projetos/spark/datalake/raw',
         table_name = 'currency_daily_quotation'
     )
 
-    print(f'Path to raw data: {path_to_raw_layer}')
+    print(f'Path: {data_loader_obj_raw._path_to_save}')
+    print(f'Table name: {data_loader_obj_raw._table_name}')
 
     # Testing delta table creation in a raw layer
-    data_loader_obj.create_delta_table(
-        dataframe_to_save = raw_dataframe,
-        path_and_name_of_table = path_to_raw_layer
+    data_loader_obj_raw.create_delta_table(
+        dataframe_to_save = raw_dataframe
     )
 
     # Transforming the data to save in bronze layer
@@ -123,15 +111,16 @@ if __name__ == '__main__':
             )
     ).drop('date')
 
-    path_to_bronze_layer = data_loader_obj.path_to_files(
-        path_to_save = '/home/welbert/projetos/spark/datalake/bronze',
+
+    # Initializing a data loader instance to bronze layer
+    data_loader_obj_bronze = DataLoader(
+        path_to_save = '/home/welbert/projetos/spark/datalake/raw',
         table_name = 'currency_daily_quotation'
     )
 
     # Testing delta table creation in a bronze layer
-    data_loader_obj.create_delta_table(
-        dataframe_to_save = bronze_dataframe,
-        path_and_name_of_table = path_to_bronze_layer
+    data_loader_obj_bronze.create_delta_table(
+        dataframe_to_save = bronze_dataframe
     )
 
     bronze_dataframe.show()
