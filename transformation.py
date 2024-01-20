@@ -7,8 +7,8 @@ from pyspark.sql.functions import col, first, lit, row_number
 
 class DataTransformer():
     def __init__(self, short_description: str, layer: str = 'silver') -> None:
-        self.short_description = short_description
-        self.layer = layer
+        self._short_description = short_description
+        self._layer = layer
 
     def spark_df_using_list(self, data_list: list, spark_session: SparkSession) -> DataFrame:
         '''
@@ -111,8 +111,8 @@ if __name__ == '__main__':
             )
     ).drop('date')
 
-    print(f'Short description: {data_transformer_obj.short_description}')
-    print(f'Layer: {data_transformer_obj.layer}')
+    print(f'Short description: {data_transformer_obj._short_description}')
+    print(f'Layer: {data_transformer_obj._layer}')
     bronze_dataframe.show()
 
     manager_spark_obj.stop_spark(spark_session)

@@ -4,7 +4,7 @@ import json
 
 class DataExtractor:
     def __init__(self, project_name):
-        self.project_name = project_name
+        self._project_name = project_name
 
     def get_json_data(self, url: str, num_days: int) -> list:
         """
@@ -19,7 +19,7 @@ class DataExtractor:
 if __name__ == '__main__':
     extract_obj = DataExtractor(project_name = 'Currency daily quotation')
 
-    print(extract_obj.project_name)
+    print(extract_obj._project_name)
 
     data = extract_obj.get_json_data(
         url = 'https://economia.awesomeapi.com.br/json/daily/BTC-BRL',

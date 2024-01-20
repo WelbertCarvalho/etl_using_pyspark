@@ -6,16 +6,16 @@ from pyspark.sql import SparkSession
 
 class ManagSpark():
     def __init__(self, app_name: str, delta: bool = False):
-        self.started_in = datetime.now().strftime('%y-%m-%d %H:%M:%S')
-        self.app_name = app_name
-        self.delta = delta
+        self._started_in = datetime.now().strftime('%y-%m-%d %H:%M:%S')
+        self._app_name = app_name
+        self._delta = delta
 
     def start_spark(self) -> SparkSession:
         '''
         This method starts a new Spark Session. The default value to use delta tables is false.
         '''
 
-        if self.delta:
+        if self._delta:
             spark = (
                 SparkSession
                     .builder
@@ -31,7 +31,7 @@ class ManagSpark():
                 SparkSession
                     .builder
                     .master('local[*]')
-                    .appName(self.app_name)
+                    .appName(self._app_name)
                     .getOrCreate()
             )
 
@@ -49,6 +49,6 @@ if __name__ == '__main__':
     obj_gerenc_spark = ManagSpark(app_name = 'Data engineering', delta = True)
     spark_session = obj_gerenc_spark.start_spark()
     print(spark_session)
-    print(obj_gerenc_spark.started_in)
+    print(obj_gerenc_spark._started_in)
 
     obj_gerenc_spark.stop_spark(spark_session)
