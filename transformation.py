@@ -29,7 +29,7 @@ class DataTransformer():
 
     def deduplicate_data(self, spark_dataframe: DataFrame, column_name_ref: str) -> DataFrame:
         '''
-        This method deduplicate data using a specific column, receiving a Spark DataFrame and the column name as a string.
+        This method deduplicate data using an specific column, receiving an Spark DataFrame and the column name as a string.
         '''
         window_spec = (
             Window

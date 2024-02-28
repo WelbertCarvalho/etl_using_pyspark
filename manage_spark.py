@@ -43,7 +43,7 @@ class ManagSpark():
         '''
         spark_session.stop()
         print('------- The spark session was ended -------')
-
+        return None
 
 if __name__ == '__main__':
     obj_gerenc_spark = ManagSpark(app_name = 'Data engineering', delta = True)

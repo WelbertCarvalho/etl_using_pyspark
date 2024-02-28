@@ -4,7 +4,7 @@ findspark.init()
 from pyspark.sql import DataFrame
 
 class DataLoader():
-    def __init__(self, path_to_save: str, table_name: str) -> None:
+    def __init__(self, path_to_save: str, table_name: str):
         self._path_to_save = path_to_save
         self._table_name = table_name
 

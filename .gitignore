@@ -5,3 +5,4 @@ instalacao_spark/
 datalake/
 analysis.ipynb
 delta_test.ipynb
+.vscode/
